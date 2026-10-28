@@ -1,0 +1,401 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>RPB-001 control concepts</title>
+<style>
+  body{margin:0;background:#e9edf1;font-family:"DejaVu Sans",Arial,sans-serif;color:#1b2733}
+  .board{width:1600px;height:1000px;background:#fff;margin:0 0 20px;position:relative;overflow:hidden}
+  .hd{position:absolute;left:40px;top:28px}
+  .hd h1{margin:0;font-size:30px}
+  .hd p{margin:6px 0 0;color:#55606a;font-size:16px}
+  .tag{position:absolute;right:40px;top:34px;font-size:13px;color:#55606a;text-align:right}
+  svg text{font-family:"DejaVu Sans",Arial,sans-serif}
+  /* dashboard */
+  .dash{position:absolute;left:40px;top:110px;width:1520px;height:860px;border-radius:14px;background:#0f1620;color:#dfe7ef;overflow:hidden;box-shadow:0 10px 40px #0004}
+  .bar{height:56px;background:#17212d;display:flex;align-items:center;padding:0 22px;gap:18px;font-size:15px}
+  .bar b{font-size:19px;color:#fff}
+  .pill{padding:4px 12px;border-radius:20px;background:#22303f;font-size:13px}
+  .ok{color:#5be08a}.bad{color:#ff6b6b}.warn{color:#ffc247}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:20px 22px;width:1010px}
+  .door{background:#17212d;border-radius:12px;padding:14px 16px;position:relative;border:2px solid #243344}
+  .door h3{margin:0;font-size:18px;color:#fff}
+  .door .st{font-size:13px;color:#9fb0c0;margin-top:2px;height:16px}
+  .tw{position:absolute;right:14px;top:14px;display:flex;flex-direction:column;gap:4px}
+  .tw i{display:block;width:22px;height:16px;border-radius:4px;background:#2a3542}
+  .tw .r.on{background:#ff3b3b;box-shadow:0 0 12px #ff3b3b}
+  .tw .a.on{background:#ffb020;box-shadow:0 0 12px #ffb020}
+  .tw .g.on{background:#2fd160;box-shadow:0 0 12px #2fd160}
+  .io{display:flex;gap:8px;margin-top:14px;font-size:12px}
+  .io span{padding:3px 8px;border-radius:6px;background:#22303f;color:#9fb0c0}
+  .io span.on{background:#1f5134;color:#7ff0a8}
+  .tags{margin-top:12px;font-size:26px;font-weight:bold;color:#fff}
+  .tags small{font-size:12px;color:#9fb0c0;font-weight:normal}
+  .btns{display:flex;gap:6px;margin-top:12px}
+  .btns button{flex:1;background:#22303f;color:#dfe7ef;border:1px solid #33465a;border-radius:7px;padding:6px 0;font-size:12px}
+  .door.fault{border-color:#ff6b6b}
+  .door.maint{border-color:#ffc247;background:repeating-linear-gradient(45deg,#17212d,#17212d 14px,#1d2632 14px,#1d2632 28px)}
+  table td,table th{padding:6px 4px;border-bottom:1px solid #243344}
+  .side{position:absolute;right:22px;top:76px;width:400px;bottom:20px;background:#17212d;border-radius:12px;padding:16px}
+  .side h4{margin:0 0 10px;font-size:15px;color:#fff}
+  .log div{font-size:12.5px;padding:7px 0;border-bottom:1px solid #243344;color:#b8c6d3}
+  .log b{color:#fff;font-weight:normal}
+  .detail{margin-top:18px;background:#0f1620;border-radius:10px;padding:12px;font-size:13px}
+  .detail .row{display:flex;justify-content:space-between;padding:4px 0;color:#9fb0c0}
+  .detail .row b{color:#fff;font-weight:normal}
+  .big{display:flex;gap:8px;margin-top:12px}
+  .big button{flex:1;padding:10px 0;border-radius:8px;border:0;font-size:13px;font-weight:bold}
+</style></head><body>
+
+<!-- ================= 1. DOCK DOOR CONCEPT ================= -->
+<div class="board" id="b1">
+  <div class="hd"><h1>Concept · what the driver and dock worker see</h1>
+  <p>Inside the dock, one door. Tower HL1 is outside for the truck driver, HL2 is inside for the forklift. CS1 is the operator station.</p></div>
+  <div class="tag">RPB-001 rev 9 proposal<br>Oct 28, 2026</div>
+  <svg width="1600" height="1000" viewBox="0 0 1600 1000" style="position:absolute;left:0;top:0">
+    <defs>
+      <linearGradient id="wall" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#d9dde2"/><stop offset="1" stop-color="#c3c9cf"/></linearGradient>
+      <linearGradient id="door" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#9aa7b4"/><stop offset="1" stop-color="#7e8b98"/></linearGradient>
+      <linearGradient id="trl" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f3f5f7"/><stop offset="1" stop-color="#d2d8de"/></linearGradient>
+      <filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <!-- wall + floor -->
+    <rect x="0" y="120" width="1600" height="690" fill="url(#wall)"/>
+    <rect x="0" y="810" width="1600" height="190" fill="#a7a39b"/>
+    <rect x="0" y="806" width="1600" height="8" fill="#e8c200"/>
+    <!-- door opening -->
+    <rect x="430" y="230" width="560" height="580" fill="#2b323a"/>
+    <!-- trailer back -->
+    <rect x="460" y="300" width="500" height="510" fill="url(#trl)" stroke="#8a949c" stroke-width="3"/>
+    <rect x="470" y="310" width="236" height="490" fill="none" stroke="#a9b2ba" stroke-width="2"/>
+    <rect x="714" y="310" width="236" height="490" fill="none" stroke="#a9b2ba" stroke-width="2"/>
+    <rect x="700" y="470" width="20" height="110" rx="4" fill="#8a949c"/>
+    <text x="710" y="380" font-size="22" text-anchor="middle" fill="#7a848c" font-weight="bold">TRAILER</text>
+    <!-- roll-up door partly up -->
+    <rect x="430" y="230" width="560" height="64" fill="url(#door)"/>
+    <g stroke="#6c7884" stroke-width="2">
+      <line x1="430" y1="246" x2="990" y2="246"/><line x1="430" y1="262" x2="990" y2="262"/><line x1="430" y1="278" x2="990" y2="278"/></g>
+    <!-- door frame + seals -->
+    <rect x="410" y="210" width="20" height="600" fill="#222"/><rect x="990" y="210" width="20" height="600" fill="#222"/>
+    <rect x="410" y="200" width="600" height="30" fill="#222"/>
+    <!-- bumpers -->
+    <rect x="452" y="740" width="44" height="66" rx="5" fill="#1a1a1a"/><rect x="924" y="740" width="44" height="66" rx="5" fill="#1a1a1a"/>
+    <!-- leveler -->
+    <rect x="470" y="800" width="480" height="14" fill="#666"/>
+
+    <!-- antennas on frame -->
+    <g>
+      <rect x="378" y="300" width="28" height="90" rx="4" fill="#eef1f4" stroke="#55606a" stroke-width="2"/>
+      <rect x="378" y="560" width="28" height="90" rx="4" fill="#eef1f4" stroke="#55606a" stroke-width="2"/>
+      <rect x="1014" y="300" width="28" height="90" rx="4" fill="#eef1f4" stroke="#55606a" stroke-width="2"/>
+      <rect x="1014" y="560" width="28" height="90" rx="4" fill="#eef1f4" stroke="#55606a" stroke-width="2"/>
+    </g>
+    <!-- RF field hint -->
+    <path d="M406,345 Q560,420 406,500" fill="none" stroke="#2a7fd4" stroke-width="2" stroke-dasharray="5 6" opacity=".7"/>
+    <path d="M1014,345 Q860,420 1014,500" fill="none" stroke="#2a7fd4" stroke-width="2" stroke-dasharray="5 6" opacity=".7"/>
+
+    <!-- B2 beam across door at forklift height -->
+    <rect x="374" y="690" width="30" height="26" rx="4" fill="#ffcf33" stroke="#7a5d00" stroke-width="2"/>
+    <rect x="1016" y="690" width="30" height="26" rx="4" fill="#cfd5db" stroke="#55606a" stroke-width="2"/>
+    <line x1="404" y1="703" x2="1016" y2="703" stroke="#ff2d2d" stroke-width="3" stroke-dasharray="10 7"/>
+    <!-- B1 truck sensor near bumper -->
+    <rect x="500" y="770" width="40" height="18" rx="9" fill="#3d6fb3" stroke="#1b3a66" stroke-width="2"/>
+    <line x1="540" y1="779" x2="600" y2="779" stroke="#ff5050" stroke-width="2" stroke-dasharray="4 4"/>
+
+    <!-- panel box on wall left -->
+    <g transform="translate(-60,0)">
+    <rect x="120" y="360" width="190" height="240" rx="10" fill="#e9eef2" stroke="#55606a" stroke-width="3"/>
+    <rect x="132" y="372" width="166" height="216" rx="6" fill="#cfd8df" opacity=".6"/>
+    <rect x="145" y="390" width="60" height="70" fill="#1f4fd1" opacity=".85"/><rect x="212" y="390" width="70" height="70" fill="#222"/>
+    <rect x="145" y="470" width="137" height="40" fill="#222"/><rect x="145" y="520" width="137" height="56" fill="#0b3d2e"/>
+    <!-- conduit -->
+    <path d="M215,600 L215,640 L395,640" fill="none" stroke="#7d8790" stroke-width="5"/>
+    </g>
+
+    <!-- CS1 operator station -->
+    <rect x="300" y="470" width="70" height="170" rx="8" fill="#f2c400" stroke="#7a5d00" stroke-width="3"/>
+    <circle cx="335" cy="505" r="17" fill="#2fd160" stroke="#0c5b26" stroke-width="3" filter="url(#glow)"/>
+    <circle cx="335" cy="555" r="17" fill="#ffcc00" stroke="#7a5d00" stroke-width="3"/>
+    <circle cx="335" cy="605" r="15" fill="#c9ced3" stroke="#333" stroke-width="3"/>
+    <rect x="331" y="595" width="8" height="20" rx="2" fill="#333"/>
+
+    <!-- HL2 inside (on wall right of door) -->
+    <g transform="translate(1100,250)">
+      <rect x="8" y="0" width="44" height="12" rx="3" fill="#333"/>
+      <rect x="4" y="12" width="52" height="46" rx="4" fill="#5a1a1a"/>
+      <rect x="4" y="60" width="52" height="46" rx="4" fill="#ffb020" filter="url(#glow)"/>
+      <rect x="4" y="108" width="52" height="46" rx="4" fill="#173d22"/>
+      <rect x="22" y="156" width="16" height="80" fill="#888"/>
+      <rect x="-20" y="236" width="100" height="12" fill="#888"/>
+    </g>
+    <!-- HL1 outside (seen through: mounted high on exterior, shown on mast at right) -->
+    <g transform="translate(1250,180)">
+      <rect x="8" y="0" width="44" height="12" rx="3" fill="#333"/>
+      <rect x="4" y="12" width="52" height="46" rx="4" fill="#5a1a1a"/>
+      <rect x="4" y="60" width="52" height="46" rx="4" fill="#ffb020" filter="url(#glow)"/>
+      <rect x="4" y="108" width="52" height="46" rx="4" fill="#173d22"/>
+      <rect x="22" y="156" width="16" height="420" fill="#888"/>
+    </g>
+    <text x="1280" y="170" font-size="13" text-anchor="middle" fill="#55606a">(exterior, driver side)</text>
+
+    <!-- callouts -->
+    <g font-size="15">
+      <text x="1340" y="260" font-weight="bold">HL1 · driver tower</text>
+      <text x="1340" y="280" fill="#55606a">outside, on mast or wall, ~12 ft</text>
+      <text x="1340" y="300" fill="#55606a">mirror image of HL2</text>
+
+      <text x="1060" y="535" font-weight="bold">HL2 · forklift tower</text>
+      <text x="1060" y="555" fill="#55606a">inside, beside the door</text>
+
+      <text x="40" y="690" font-weight="bold">CS1 · operator station</text>
+      <text x="40" y="710" fill="#55606a">48 in above floor, reachable</text>
+      <text x="40" y="730" fill="#55606a">from the dock plate</text>
+      <path d="M150,680 L300,600" stroke="#26323d" fill="none"/>
+
+      <text x="60" y="325" font-weight="bold">Panel box</text>
+      <text x="60" y="345" fill="#55606a">K1 + U1 + SW1 inside</text>
+
+      <text x="1060" y="700" font-weight="bold">B2 beam</text>
+      <text x="1060" y="720" fill="#55606a">across the opening,</text>
+      <text x="1060" y="740" fill="#55606a">forklift mast height</text>
+
+      <text x="610" y="860" font-weight="bold">B1 truck sensor</text>
+      <text x="610" y="880" fill="#55606a">laser at the bumper, sees the trailer</text>
+      <path d="M605,856 L540,790" stroke="#26323d" fill="none"/>
+
+      <text x="1060" y="615" font-weight="bold">4 × UHF antennas</text>
+      <text x="1060" y="635" fill="#55606a">on the door frame (A5-A8)</text>
+    </g>
+
+    <!-- legend strip -->
+    <g transform="translate(40,920)">
+      <rect x="0" y="0" width="1520" height="56" rx="10" fill="#f4f7f9" stroke="#c9d1d8"/>
+      <circle cx="30" cy="28" r="11" fill="#ff3b3b"/><text x="48" y="33" font-size="15">RED · no truck, don't drive in</text>
+      <circle cx="330" cy="28" r="11" fill="#ffb020"/><text x="348" y="33" font-size="15">AMBER · truck docked, ready to load</text>
+      <circle cx="660" cy="28" r="11" fill="#2fd160"/><text x="678" y="33" font-size="15">GREEN · forklift in the door, reading tags</text>
+      <circle cx="1020" cy="28" r="11" fill="#fff" stroke="#ff3b3b" stroke-width="4" stroke-dasharray="4 3"/><text x="1038" y="33" font-size="15">BLINK = needs attention (see storyboard)</text>
+    </g>
+  </svg>
+</div>
+
+<!-- ================= 2. CONTROL STATION ================= -->
+<div class="board" id="b2">
+  <div class="hd"><h1>CS1 · three-button operator station</h1>
+  <p>22 mm IP65 parts in a 3-hole yellow box. Wired to K1 DI3-DI5 and CH5 (sheet W3 / W2). Every button is only a request: the C# service decides.</p></div>
+  <div class="tag">RPB-001 rev 9 proposal<br>Oct 28, 2026</div>
+  <svg width="1600" height="1000" viewBox="0 0 1600 1000" style="position:absolute;left:0;top:0">
+    <defs>
+      <radialGradient id="gb" cx=".4" cy=".35"><stop offset="0" stop-color="#9dffbf"/><stop offset=".6" stop-color="#22c55e"/><stop offset="1" stop-color="#0f7a37"/></radialGradient>
+      <radialGradient id="yb" cx=".4" cy=".35"><stop offset="0" stop-color="#fff2a6"/><stop offset=".6" stop-color="#ffcc00"/><stop offset="1" stop-color="#b38f00"/></radialGradient>
+      <radialGradient id="ks" cx=".4" cy=".35"><stop offset="0" stop-color="#f5f6f7"/><stop offset="1" stop-color="#9aa1a8"/></radialGradient>
+      <linearGradient id="box" x1="0" x2="1"><stop offset="0" stop-color="#f7cf1f"/><stop offset="1" stop-color="#e0b000"/></linearGradient>
+      <filter id="g2"><feGaussianBlur stdDeviation="10" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <filter id="sh"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-opacity=".25"/></filter>
+    </defs>
+    <!-- station -->
+    <g transform="translate(120,130)" filter="url(#sh)">
+      <rect x="0" y="0" width="300" height="800" rx="26" fill="url(#box)" stroke="#8a6d00" stroke-width="4"/>
+      <rect x="40" y="26" width="220" height="40" rx="6" fill="#1b2733"/>
+      <text x="150" y="53" font-size="20" fill="#fff" text-anchor="middle" font-weight="bold">DOOR 04</text>
+      <!-- S1 -->
+      <rect x="45" y="100" width="210" height="34" rx="4" fill="#fff" stroke="#333"/>
+      <text x="150" y="124" font-size="17" text-anchor="middle" font-weight="bold">LOAD COMPLETE</text>
+      <circle cx="150" cy="230" r="78" fill="#2b2b2b"/>
+      <circle cx="150" cy="230" r="62" fill="url(#gb)" filter="url(#g2)"/>
+      <circle cx="150" cy="230" r="62" fill="none" stroke="#0c5b26" stroke-width="4"/>
+      <!-- S2 -->
+      <rect x="45" y="340" width="210" height="34" rx="4" fill="#fff" stroke="#333"/>
+      <text x="150" y="364" font-size="17" text-anchor="middle" font-weight="bold">ACK / SILENCE</text>
+      <circle cx="150" cy="470" r="78" fill="#2b2b2b"/>
+      <circle cx="150" cy="470" r="62" fill="url(#yb)"/>
+      <circle cx="150" cy="470" r="62" fill="none" stroke="#8a6d00" stroke-width="4"/>
+      <!-- S3 -->
+      <rect x="45" y="580" width="210" height="34" rx="4" fill="#fff" stroke="#333"/>
+      <text x="150" y="604" font-size="17" text-anchor="middle" font-weight="bold">MAINT</text>
+      <circle cx="150" cy="700" r="66" fill="#2b2b2b"/>
+      <circle cx="150" cy="700" r="52" fill="url(#ks)" stroke="#555" stroke-width="3"/>
+      <rect x="143" y="662" width="14" height="76" rx="4" fill="#3a3f44"/>
+      <text x="40" y="700" font-size="14" font-weight="bold">OFF</text>
+      <text x="226" y="700" font-size="14" font-weight="bold">ON</text>
+    </g>
+
+    <!-- callouts -->
+    <g font-size="16">
+      <g transform="translate(520,170)">
+        <rect x="0" y="0" width="1000" height="215" rx="14" fill="#f2fbf5" stroke="#9fd8b4"/>
+        <circle cx="40" cy="40" r="18" fill="#22c55e"/>
+        <text x="72" y="47" font-size="22" font-weight="bold">S1 · LOAD COMPLETE   <tspan font-size="15" fill="#55606a" font-weight="normal">green illuminated, momentary · DI3 · lamp on CH5</tspan></text>
+        <text x="30" y="90">Press when the last pallet is on. The service closes the RFID session for this trailer,</text>
+        <text x="30" y="114">checks the tag count against the order, and posts the result to MERP.</text>
+        <text x="30" y="148" font-weight="bold">Lamp tells the worker what the server thinks:</text>
+        <text x="30" y="174">  off = nothing to do   ·   blinking = tags read, OK to finish   ·   steady = loading in progress</text>
+        <text x="30" y="198" fill="#55606a">Hold 3 s instead of a tap = re-open the session (fat-finger undo).</text>
+      </g>
+      <g transform="translate(520,410)">
+        <rect x="0" y="0" width="1000" height="190" rx="14" fill="#fffbe6" stroke="#ecd67a"/>
+        <circle cx="40" cy="40" r="18" fill="#ffcc00"/>
+        <text x="72" y="47" font-size="22" font-weight="bold">S2 · ACK / SILENCE   <tspan font-size="15" fill="#55606a" font-weight="normal">yellow, momentary · DI4</tspan></text>
+        <text x="30" y="90">Stops the buzzer and acknowledges an alarm, e.g. wrong-load tag read or a pallet</text>
+        <text x="30" y="114">that did not read. The event is logged with the time on the dashboard.</text>
+        <text x="30" y="148">Does NOT change the light by itself: red_blink stays until the server clears the cause</text>
+        <text x="30" y="172">or a supervisor clears it from the dashboard.</text>
+      </g>
+      <g transform="translate(520,625)">
+        <rect x="0" y="0" width="1000" height="190" rx="14" fill="#f4f6f8" stroke="#c9d1d8"/>
+        <circle cx="40" cy="40" r="18" fill="#c9ced3" stroke="#333" stroke-width="3"/>
+        <text x="72" y="47" font-size="22" font-weight="bold">S3 · MAINT   <tspan font-size="15" fill="#55606a" font-weight="normal">2-position keyswitch, maintained · DI5 · key out in OFF only</tspan></text>
+        <text x="30" y="90">Takes the door out of service: amber blinks on both towers, beam breaks are ignored,</text>
+        <text x="30" y="114">no green, no reads posted. Dashboard tile shows hatched "MAINTENANCE".</text>
+        <text x="30" y="148">Use for door repair, leveler work or a sensor swap. Key stays with maintenance.</text>
+        <text x="30" y="172" fill="#b00000">Not a lockout: still follow LOTO for the door and leveler.</text>
+      </g>
+      <text x="520" y="860" font-size="15" fill="#55606a">Parts per door: 3-hole 22 mm enclosure (yellow) · green illuminated PB 12 V LED 1NO · yellow PB 1NO ·</text>
+      <text x="520" y="882" font-size="15" fill="#55606a">2-pos keyswitch 1NO key-trapped · 3 legend plates · 18/6 SJOOW cord · PG9 cord grip. Any brand (Schneider XB4/XB5, AB 800F, Idec, etc.)</text>
+    </g>
+  </svg>
+</div>
+
+<!-- ================= 3. LIGHT STATE STORYBOARD ================= -->
+<div class="board" id="b3">
+  <div class="hd"><h1>Storyboard · one trailer, start to finish</h1>
+  <p>What the towers, buzzer and S1 lamp do. Logic runs in the C# service; the box only shows what it's told (MQTT_CONTRACT.md).</p></div>
+  <div class="tag">RPB-001 rev 9 proposal<br>Oct 28, 2026</div>
+  <svg id="sb" width="1600" height="1000" viewBox="0 0 1600 1000" style="position:absolute;left:0;top:0"></svg>
+</div>
+
+<!-- ================= 4. DASHBOARD ================= -->
+<div class="board" id="b4">
+  <div class="hd"><h1>Dashboard · ASP.NET Core + SignalR page on the C# service</h1>
+  <p>Live door tiles mirror each box over MQTT. Supervisor controls are server-side commands, logged with who and when.</p></div>
+  <div class="tag">mockup · not live data</div>
+  <div class="dash">
+    <div class="bar"><b>MERP RFID · Dock doors</b><span class="pill">Broker <span class="ok">● online</span></span><span class="pill">Service <span class="ok">● online</span></span><span class="pill">8 doors · 1 fault · 1 maint</span><span style="margin-left:auto" class="pill">Shift 2 · 14:32</span></div>
+    <div class="grid" id="grid"></div>
+    <div style="margin:4px 22px;width:1010px;background:#17212d;border-radius:12px;padding:14px 18px;font-size:13.5px">
+      <div style="font-size:15px;color:#fff;margin-bottom:8px">Loads this shift</div>
+      <table style="width:100%;border-collapse:collapse;color:#b8c6d3">
+        <tr style="color:#7f93a6;text-align:left"><th>Door</th><th>Trailer</th><th>Order</th><th>Tags / expected</th><th>Closed</th><th>Result</th></tr>
+        <tr><td>01</td><td>TRL 5517</td><td>SO 88407</td><td>52 / 52</td><td>14:28</td><td class="ok">✓ posted to MERP</td></tr>
+        <tr><td>05</td><td>TRL 5519</td><td>SO 88410</td><td>17 / 40</td><td>—</td><td class="warn">open · 1 wrong-load ACKed</td></tr>
+        <tr><td>02</td><td>TRL 5508</td><td>SO 88399</td><td>36 / 36</td><td>13:47</td><td class="ok">✓ posted to MERP</td></tr>
+        <tr><td>04</td><td>TRL 5502</td><td>SO 88391</td><td>48 / 50</td><td>13:05</td><td class="bad">2 short · supervisor closed</td></tr>
+      </table>
+    </div>
+    <div class="side">
+      <h4>Door 03 · selected</h4>
+      <div class="detail">
+        <div class="row"><span>State</span><b class="ok">GREEN · reading</b></div>
+        <div class="row"><span>Trailer / order</span><b>TRL 5521 · SO 88412</b></div>
+        <div class="row"><span>Tags this load</span><b>38 / 44 pallets</b></div>
+        <div class="row"><span>Truck (DI1) · Beam (DI2)</span><b>1 · 1</b></div>
+        <div class="row"><span>Box fw · IP · uptime</span><b>1.1.0 · 10.0.0.43 · 6 d</b></div>
+        <div class="row"><span>MAC</span><b>58:CF:79:xx:xx:43</b></div>
+      </div>
+      <div class="big">
+        <button style="background:#ff4d4d;color:#fff">Force RED</button>
+        <button style="background:#ffc247">Silence</button>
+        <button style="background:#3a4b5e;color:#fff">Maint</button>
+      </div>
+      <div class="big">
+        <button style="background:#2b3a4b;color:#fff">Close load</button>
+        <button style="background:#2b3a4b;color:#fff">Re-open</button>
+        <button style="background:#2b3a4b;color:#fff">Test lamps</button>
+      </div>
+      <h4 style="margin-top:18px">Events</h4>
+      <div class="log">
+        <div>14:31:58 <b>Door 03</b> beam broken → GREEN</div>
+        <div>14:31:40 <b>Door 06</b> <span class="bad">box offline</span> (LWT) → shown FAULT</div>
+        <div>14:30:12 <b>Door 05</b> wrong-load tag 3034…A91 → RED blink, buzzer</div>
+        <div>14:30:20 <b>Door 05</b> S2 ACK pressed (buzzer off)</div>
+        <div>14:28:03 <b>Door 01</b> S1 LOAD COMPLETE · 52/52 tags ✓</div>
+        <div>14:20:45 <b>Door 07</b> S3 MAINT key ON (J. Ortiz)</div>
+        <div>14:12:09 <b>Door 02</b> truck arrived → AMBER, chirp</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---------- storyboard ----------
+(function(){
+  const svg = document.getElementById('sb');
+  const NS='http://www.w3.org/2000/svg';
+  const el=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(p||svg).appendChild(e);return e};
+  const txt=(x,y,s,o={},p)=>{const e=el('text',Object.assign({x,y,'font-size':15,fill:'#1b2733'},o),p);e.textContent=s;return e};
+  const defs=el('defs',{});
+  const f=el('filter',{id:'gl'},defs);el('feGaussianBlur',{stdDeviation:7},f);
+  const steps=[
+    {t:'1 · Door empty',light:'r',blink:false,bz:'off',pl:'off',in:'truck 0 · beam 0',note:['Nothing at the door.','Drivers and forklifts','stay out.']},
+    {t:'2 · Truck backs in',light:'a',blink:false,bz:'chirp',pl:'off',in:'truck 1 · beam 0',note:['B1 sees the trailer.','One chirp so the dock','knows a truck is in.']},
+    {t:'3 · Forklift in door',light:'g',blink:false,bz:'off',pl:'on',in:'truck 1 · beam 1',note:['Beam broken = reader','active. Tags post to','MERP live.']},
+    {t:'4 · Wrong load tag',light:'r',blink:true,bz:'beep',pl:'off',in:'tag ≠ order',note:['Pallet not on this','order. Beep until S2','ACK, red blinks.']},
+    {t:'5 · All tags read',light:'a',blink:false,bz:'off',pl:'blink',in:'44 / 44',note:['S1 blinks: OK to','finish. Worker','presses LOAD COMPLETE.']},
+    {t:'6 · Load complete',light:'a',blink:true,bz:'chirp',pl:'off',in:'S1 pressed',note:['Amber blinks until','truck pulls out,','then back to red.']},
+  ];
+  const col={r:'#ff3b3b',a:'#ffb020',g:'#2fd160'}, dim={r:'#5a1a1a',a:'#5a4210',g:'#173d22'};
+  steps.forEach((s,i)=>{
+    const x=40+i*255, y=120;
+    const g=el('g',{transform:`translate(${x},${y})`});
+    el('rect',{x:0,y:0,width:240,height:740,rx:16,fill:'#f4f7f9',stroke:'#c9d1d8'},g);
+    txt(16,36,s.t,{'font-size':18,'font-weight':'bold'},g);
+    // tower
+    const tx=80, ty=70;
+    el('rect',{x:tx+10,y:ty,width:60,height:14,rx:3,fill:'#333'},g);
+    ['r','a','g'].forEach((c,k)=>{
+      const on=s.light===c;
+      const r=el('rect',{x:tx,y:ty+16+k*78,width:80,height:72,rx:6,fill:on?col[c]:dim[c],filter:on?'url(#gl)':''},g);
+      if(on&&s.blink){ el('rect',{x:tx-8,y:ty+8+k*78,width:96,height:88,rx:10,fill:'none',stroke:col[c],'stroke-width':4,'stroke-dasharray':'8 7'},g);
+        txt(tx+40,ty+58+k*78,'BLINK',{'font-size':13,'font-weight':'bold','text-anchor':'middle',fill:'#fff'},g);}
+    });
+    el('rect',{x:tx+28,y:ty+252,width:24,height:60,fill:'#888'},g);
+    // buzzer + pilot rows
+    const ry=420;
+    txt(16,ry,'Buzzer',{fill:'#55606a'},g);
+    txt(224,ry,s.bz.toUpperCase(),{'font-weight':'bold','text-anchor':'end',fill:s.bz==='off'?'#8a949c':'#b06a00'},g);
+    txt(16,ry+30,'S1 lamp',{fill:'#55606a'},g);
+    txt(224,ry+30,s.pl.toUpperCase(),{'font-weight':'bold','text-anchor':'end',fill:s.pl==='off'?'#8a949c':'#118a3c'},g);
+    txt(16,ry+60,'Inputs',{fill:'#55606a'},g);
+    txt(224,ry+60,s.in,{'text-anchor':'end','font-size':13.5},g);
+    el('line',{x1:16,y1:ry+80,x2:224,y2:ry+80,stroke:'#d5dce2'},g);
+    s.note.forEach((n,k)=>txt(16,ry+112+k*22,n,{},g));
+    // MQTT payload
+    const pay = (s.light==='r'?'red':s.light==='a'?'yellow':'green')+(s.blink?'_blink':'');
+    el('rect',{x:12,y:660,width:216,height:62,rx:8,fill:'#1b2733'},g);
+    txt(22,684,'light/set  '+pay,{'font-size':12.5,fill:'#9fe0b5','font-family':'DejaVu Sans Mono'},g);
+    txt(22,704,'buzzer/set '+s.bz+' · pilot '+s.pl,{'font-size':11.5,fill:'#c8d3dd','font-family':'DejaVu Sans Mono'},g);
+    if(i<steps.length-1) el('path',{d:`M${x+243},${y+250} l10,10 l-10,10`,fill:'none',stroke:'#7d8790','stroke-width':3});
+  });
+  // footer
+  const fy=900;
+  el('rect',{x:40,y:fy,width:1520,height:70,rx:12,fill:'#fff3f3',stroke:'#f2b8b8'});
+  txt(60,fy+30,'Fail-safe (firmware, no server needed): box goes steady RED, buzzer off, S1 lamp off when the broker is gone 10 s, the service publishes',{'font-size':15});
+  txt(60,fy+54,'dock/server/status = offline, or on any reboot. Green can never stay on without the server.',{'font-size':15,'font-weight':'bold'});
+})();
+
+// ---------- dashboard tiles ----------
+(function(){
+  const doors=[
+    ['Door 01','yellow','Load closed · 52/52 ✓',1,0,'52'],
+    ['Door 02','yellow','Truck docked',1,0,'0'],
+    ['Door 03','green','Reading',1,1,'38'],
+    ['Door 04','red','Empty',0,0,'—'],
+    ['Door 05','redb','Wrong-load tag · ACKed',1,0,'17'],
+    ['Door 06','fault','BOX OFFLINE 0:42',0,0,'—'],
+    ['Door 07','maint','MAINTENANCE',0,0,'—'],
+    ['Door 08','red','Empty',0,0,'—'],
+  ];
+  const grid=document.getElementById('grid');
+  doors.forEach(d=>{
+    const [n,st,txt,tr,bm,tags]=d;
+    const div=document.createElement('div');
+    div.className='door'+(st==='fault'?' fault':'')+(st==='maint'?' maint':'');
+    const r=(st==='red'||st==='redb')?' on':'', a=(st==='yellow'||st==='maint')?' on':'', g=st==='green'?' on':'';
+    const cls=st==='fault'?'bad':st==='maint'?'warn':'';
+    div.innerHTML=`<h3>${n}</h3><div class="st ${cls}">${txt}</div>
+      <div class="tw"><i class="r${r}"></i><i class="a${a}"></i><i class="g${g}"></i></div>
+      <div class="io"><span class="${tr?'on':''}">TRUCK</span><span class="${bm?'on':''}">BEAM</span></div>
+      <div class="tags">${tags} <small>tags this load</small></div>
+      <div class="btns"><button>Red</button><button>Silence</button><button>Details</button></div>`;
+    if(st==='fault') div.style.opacity='.85';
+    grid.appendChild(div);
+  });
+})();
+</script>
+</body></html>
