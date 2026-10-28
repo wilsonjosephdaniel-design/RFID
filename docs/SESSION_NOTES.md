@@ -39,3 +39,12 @@ Open items (new)
 - Stack-light common polarity and lead colors (W2 notes).
 - C# service: add LWT `dock/server/status`, buzzer/pilot handling, maint/release/ack logic (MQTT_CONTRACT.md).
 - Price CS1 parts, TB0/TB2 terminals, fuses, G6/G7 glands.
+
+Reader GPI1 trigger (added same day, from the M-808EK sheet)
+- U1 GPIO block (3.81 mm × 12): 1 VOUT, 2/3 RS485, 4 GND, 5-8 GPO, 9/10 GPI2−/+, 11/12 GPI1−/+.
+- Pin 12 GPI1+ gets +12 V all the time from TB1-6 (new fused terminal F5, 0.5 A), wire 416.
+- Pin 11 GPI1− sinks to TB1 0 V when the beam trips, wire 415. B2 has one relay contact, so it is split with two
+  diodes on TB3 (D1 → K1 DI2, D2 → GPI1−, cathodes on B2 NO). Without them the open contact puts both input
+  LEDs in series across 12 V and either input can false-trigger.
+- To verify: GPI input voltage range (sheet doesn't say; 12 V is common, meter ≤ 20 mA), reader trigger
+  mode settings, and that K1 DI2 still reads through D1's 0.7 V drop.

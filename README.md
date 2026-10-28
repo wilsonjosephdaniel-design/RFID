@@ -24,14 +24,14 @@ sensor and a safety beam. The relay board runs the firmware in this pack and tal
 | Ref | Part | Notes |
 |---|---|---|
 | K1 | Waveshare **ESP32-S3-POE-ETH-8DI-8RO** | 8 relays, 8 opto DI, W5500 Ethernet, **PoE-powered from SW1 P2**. Runs the firmware. |
-| U1 | WYUAN M-808EK UHF reader | TCP/IP, powered + data via SPL1. Its GPIO is **not** used. |
+| U1 | WYUAN M-808EK UHF reader | TCP/IP, powered + data via SPL1. GPIO pin 12 GPI1+ = +12 V (TB1-6, F5); pin 11 GPI1− sinks to 0 V through TB3 diode D2 when B2 trips → reader triggers itself. Other GPIO pins empty. |
 | SW1 | GoodTop PoE+ 5-port switch | P1→SPL1, P2→K1, P5=uplink to plant network (C4 via gland G4) |
 | PSU1 | NDR-120-12 | 12 V → TB1 → stack lights, sensors, relay commons |
 | PSU2 | 48 V DIN supply (ships with SW1) | SW1 only |
 | SPL1 | REVODATA PS5712BG-25 PoE splitter | 12 V 3 A + data pigtail → U1 |
 | TB1 | 12 V distribution terminals | 3× +12 V, 3× 0 V |
 | B1 | DIHOOL M16 laser diffuse sensor, NPN NO, 3–80 cm | **truck present** → K1 DI1 (BN +12, BU 0 V, BK signal) |
-| B2 | JUTAI IRR-7M retro-reflective beam, relay out | **forklift beam** → NO to K1 DI2, COM to K1 DGND (RD +12, BK 0 V, WH COM, GN NO, YE NC) |
+| B2 | JUTAI IRR-7M retro-reflective beam, relay out | **forklift beam** → NO to TB3 diode node → D1 → K1 DI2 and D2 → U1 GPI1−; COM to K1 DGND / 0 V (RD +12, BK 0 V, WH COM, GN NO, YE NC) |
 | HL1/HL2 | 12 V stack lights (R/A/G + buzzer), wired in parallel at TB2 | K1 CH1 red, CH2 amber, CH3 green, CH4 buzzer; relay commons jumpered to +12 V |
 | CS1 | Operator station (rev 9 proposal): S1 LOAD COMPLETE (lit), S2 ACK/SILENCE, S3 MAINT key | K1 DI3 / DI4 / DI5, S1 lamp on CH5. Sheet W3 |
 | TB0 / TB2 | AC entry terminals (L/N/PE) / lamp marshalling (rev 9 proposal) | Sheets W1 / W2 |
@@ -56,6 +56,9 @@ The on-board RGB LED shows red = no Ethernet, blue = no MQTT, green = online, am
    `-t dock/door04/pilot/set -m blink` → CH5 blinks. `-t dock/door04/light/set -m yellow_blink` → CH2 blinks.
 7. `mosquitto_pub -r -t dock/server/status -m offline` → box goes red (clear it with `-m online`).
 8. Press S1 / S2, turn S3 → `inputs` shows `release` / `ack` / `maint` true.
+9. Reader GPI1: meter U1 pin 12 → TB1 0 V = 12 V. Block B2 → pin 11 drops to ~0.7 V, DI2 = 1, and the
+   reader starts an inventory (set GPI1 trigger mode in the reader's config tool). Unblock → DI2 = 0,
+   pin 11 floats up, reader stops. With B2 clear, DI2 must stay 0 (proves D1/D2 block the sneak path).
 
 ## Known unknowns (verify on the real board)
 - Physical terminal order of DI1–DI8 and the input common (DGND). The drawing bonds DGND to 0 V so the

@@ -41,8 +41,10 @@ re-send the current `light/set` every 20 s. Off by default.
 2. Never publish any `/set` topic retained (a rebooted box would replay a stale green).
 3. Treat `inputs.beam` as valid only while `inputs.truck` is true.
 4. If `status` is `offline`, `info.failsafe` is true, or `info.relay_ok` is false, show the door as faulted.
-5. `inputs.maint` true = door in maintenance: show it on the dashboard, don't drive green, ignore beam.
-6. `release` / `ack` are momentary buttons - act on the false->true edge of the retained `inputs` message.
+5. The reader is also hard-wired to the beam (U1 GPI1), so it reads whenever the beam is broken, even
+   with no truck. Drop or flag reads while `inputs.truck` is false or `inputs.maint` is true.
+6. `inputs.maint` true = door in maintenance: show it on the dashboard, don't drive green, ignore beam.
+7. `release` / `ack` are momentary buttons - act on the false->true edge of the retained `inputs` message.
 
 ## Suggested light logic (server side)
 | Condition | Light | Buzzer | Pilot (S1) |

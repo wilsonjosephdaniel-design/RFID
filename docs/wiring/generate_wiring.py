@@ -345,11 +345,11 @@ def sheet_w1():
     s.rect(TBX - 4 + 22, ys[0] - 6, 8, ys[5] - ys[0] + 12, fill="#d62020", stroke="#7a0000", sw=1, rx=3, layer="over")
     s.rect(TBX - 4 + 22, ys[6] - 6, 8, ys[13] - ys[6] + 12, fill="#333", stroke="#000", sw=1, rx=3, layer="over")
     s.text(TBX + 12, ys[5] + 26, "jumper", size=8, anchor="middle", color="#55606a", layer="over")
-    for i, (r, lab) in enumerate(((1, "F2 2 A"), (2, "F3 0.5 A"), (3, "F4 0.5 A"))):
+    for i, (r, lab) in enumerate(((1, "F2 2 A"), (2, "F3 0.5 A"), (3, "F4 0.5 A"), (5, "F5 0.5 A"))):
         y = ys[r]
         s.rect(TBX - 26, y - 7, 18, 14, fill="#fff3d6", stroke="#7a4a00", sw=1, rx=2, layer="over")
     s.text(TBX - 40, ys[13] + 48, "1-6 +12 V (red bar) · 7-14 0 V (black bar)", size=8.5, color="#55606a")
-    s.text(TBX - 40, ys[13] + 60, "2/3/4 = fused DIN terminals, 5×20 mm", size=8.5, color="#55606a")
+    s.text(TBX - 40, ys[13] + 60, "2/3/4/6 = fused DIN terminals, 5×20 mm", size=8.5, color="#55606a")
 
     s.wire([(810, 240), (885, 240), (885, ys[0]), (TBX - 40, ys[0])], "RD", "201", tag_at=1)
     s.wire([(810, 330), (860, 330), (860, ys[6]), (TBX - 40, ys[6])], "BK", "202", tag_at=1)
@@ -362,7 +362,7 @@ def sheet_w1():
         ("410", "RD", "B1 BN truck + (W3)"),
         ("412", "RD", "B2 RD beam + (W3)"),
         (None, "RD", "spare (U1 alt +12, W4)"),
-        (None, "RD", "spare"),
+        ("416", "RD", "U1 GPI1+ pin 12 (W4)"),
         ("202", "BK", "← PSU1 −V (feed)"),
         ("206", "BK", "K1 DGND (W3)"),
         ("411", "BK", "B1 BU truck 0 V (W3)"),
@@ -407,14 +407,14 @@ def sheet_w1():
         "  ≈ 30 A cold start: do NOT use fast-acting.",
         "  If PSU2 label > 1.5 A in, go 5 A.",
         ("F2-F4 (12 V branch, 5×20 mm in fused terminals)", "bold"),
-        "  F2 2 A K1 relay COM bus · F3/F4 0.5 A sensors",
+        "  F2 2 A K1 relay COM bus · F3/F4 0.5 A sensors · F5 0.5 A U1 GPI1+",
         "  Protects 18-22 AWG field cable from the 10 A supply.",
     ], size=9, gap=14.5)
     s.note_box(x0, 445, 370, "Power-up check (before K1/U1 connected)", [
         "1. Meter TB0-1 → TB0-2 ≈ 120 VAC, TB0-1 → TB0-3 ≈ 120 VAC.",
         "2. PE continuity TB0-3 ↔ backplate stud ↔ PSU cases < 1 Ω.",
         "3. Close F1. PSU1 DC OK lit; TB1-1 → TB1-7 = 12.0 V (trim V.ADJ).",
-        "4. TB1-2/3/4 → TB1-7 = 12 V (fuses in).",
+        "4. TB1-2/3/4/6 → TB1-7 = 12 V (fuses in).",
         "5. PSU2 +V → −V = 48 V; SW1 power LED on.",
         "6. K1 7-36 V terminal: nothing landed. PoE only.",
         "7. TB1 0 V is NOT bonded to PE (floating DC system).",
@@ -573,10 +573,10 @@ def sheet_w3():
            ["DI1-DI8 → GPIO 4-11", "firmware: INPUT_ACTIVE_LOW = true", "1 = input pulled to DGND"])
     names = ["DI1  truck (B1)", "DI2  beam (B2)", "DI3  S1 load complete", "DI4  S2 ack / silence",
              "DI5  S3 maint key", "DI6  spare", "DI7  spare", "DI8  spare", "DGND  input common"]
-    dy = [190, 300, 470, 540, 610, 680, 720, 760, 820]
+    dy = [190, 300, 560, 630, 700, 750, 785, 820, 850]
     for n, y in zip(names, dy):
         s.term(kx, y, n, "L", color="#e9eef2" if "DGND" not in n else "#d0d0d0")
-    s.rect(kx + 170, 180, 80, 600, fill="#ffffff", stroke="#c9d1d8", sw=1, rx=4)
+    s.rect(kx + 170, 180, 80, 650, fill="#ffffff", stroke="#c9d1d8", sw=1, rx=4)
     s.text(kx + 210, 210, "opto", size=9, anchor="middle", color="#55606a")
     for y in dy[:8]:
         s.raw(f'<polygon points="{kx+200},{y-6} {kx+200},{y+6} {kx+212},{y}" fill="#fff" stroke="#26323d" '
@@ -584,7 +584,7 @@ def sheet_w3():
         s.line(kx + 213, y - 6, kx + 213, y + 6, sw=1, layer="over")
         s.line(kx + 216, y - 2, kx + 226, y - 8, sw=0.8, layer="over")
         s.line(kx + 216, y + 2, kx + 226, y - 4, sw=0.8, layer="over")
-    s.text(kx + 210, 800, "GPIO", size=9, anchor="middle", color="#55606a")
+    s.text(kx + 210, 846, "GPIO", size=9, anchor="middle", color="#55606a")
 
     # B1 truck sensor
     s.part(60, 120, 260, 150, "B1", "DIHOOL M16 laser diffuse",
@@ -614,8 +614,27 @@ def sheet_w3():
     s.offsheet(660, 360, "TB1-4 +12 F4", right=True)
     s.wire([(320, 415), (640, 415), (640, 385), (680, 385)], "BK", "413", tag_at=0)
     s.wire([(680, 385), (700, 385)], "BK"); s.text(705, 389, "→ TB1-10 0V", size=9.5)
-    s.wire([(320, 465), (740, 465), (740, 300), (kx, 300)], "GN", "402", tag_at=0)
-    s.wire([(320, 440), (720, 440), (720, 820), (kx, 820)], "WH", "403", tag_at=0)
+    s.wire([(320, 440), (720, 440), (720, 850), (kx, 850)], "WH", "403", tag_at=0)
+    # TB3: two diode terminals split the one B2 contact to K1 DI2 and U1 GPI1-
+    tx3, ty3 = 450, 448
+    s.part(tx3, ty3, 110, 96, "TB3", "1N4007", fill="#f4f7f9")
+    s.term(tx3, 465 + 10, None)
+    s.wire([(320, 465), (400, 465), (400, 475), (tx3, 475)], "GN", "402", tag_at=0)
+    nx = tx3 + 30
+    s.line(tx3 + 7, 475, nx, 475, sw=1.4, layer="over")
+    s.line(nx, 475, nx, 530, sw=1.4, layer="over")
+    s.dot(nx, 475)
+    for yy, ref in ((490, "D1"), (530, "D2")):
+        # cathode at the node, anode toward the input
+        s.line(nx, yy, nx + 18, yy, sw=1.4, layer="over")
+        s.raw(f'<polygon points="{nx+18},{yy} {nx+34},{yy-8} {nx+34},{yy+8}" fill="#26323d"/>', "over")
+        s.line(nx + 18, yy - 8, nx + 18, yy + 8, sw=2, layer="over")
+        s.line(nx + 34, yy, tx3 + 103, yy, sw=1.4, layer="over")
+        s.text(nx + 26, yy - 11, ref, size=8.5, anchor="middle", weight="bold", layer="over")
+        s.term(tx3 + 110, yy, None)
+    s.wire([(tx3 + 110, 490), (740, 490), (740, 300), (kx, 300)], "GN", "402A", tag_at=0)
+    s.wire([(tx3 + 110, 530), (578, 530), (578, 567), (445, 567)], "GN", None)
+    s.offsheet(445, 567, "415 → U1 GPI1− pin 11 (W4)", right=False)
     s.text(326, 506, "YE NC: insulate + fold back (spare)", size=9, color="#55606a")
     s.rect(330, 484, 18, 12, fill="#fff3d6", stroke="#7a4a00", sw=1, rx=2, layer="over")
 
@@ -627,9 +646,9 @@ def sheet_w3():
     comy = cy + 110
     s.line(cx + 60, comy, cx + 400, comy, sw=1.6, layer="over")
     s.text(cx + 66, comy - 8, "13 (common)", size=9, color="#55606a")
-    pbs = [("S1", "LOAD COMPLETE", "green illum. PB · momentary", "404", "WH", 470, False),
-           ("S2", "ACK / SILENCE", "yellow PB · momentary", "405", "GN", 540, False),
-           ("S3", "MAINT", "2-pos keyswitch · maintained", "406", "OR", 610, True)]
+    pbs = [("S1", "LOAD COMPLETE", "green illum. PB · momentary", "404", "WH", 560, False),
+           ("S2", "ACK / SILENCE", "yellow PB · momentary", "405", "GN", 630, False),
+           ("S3", "MAINT", "2-pos keyswitch · maintained", "406", "OR", 700, True)]
     for k, (ref, lab, sub, num, c, ydi, maint) in enumerate(pbs):
         px = cx + 170 + k * 110
         s.dot(px, comy)
@@ -651,12 +670,13 @@ def sheet_w3():
     # Notes / tables
     s.table(1090, 120, ["Input", "Device", "Closed / 1 means", "Wire"],
             [["DI1", "B1 BK (NPN NO)", "truck present", "401"],
-             ["DI2", "B2 GN NO / WH COM", "beam broken*", "402/403"],
+             ["DI2", "B2 NO via D1 / COM", "beam broken*", "402A/403"],
              ["DI3", "S1 13-14", "load complete pressed", "404"],
              ["DI4", "S2 13-14", "ack / silence pressed", "405"],
              ["DI5", "S3 13-14", "maintenance ON", "406"],
              ["DI6-8", "—", "spare (dry contact to DGND)", "—"],
-             ["DGND", "TB1-8", "bonded to 0 V", "206"]],
+             ["DGND", "TB1-8", "bonded to 0 V", "206"],
+             ["U1 GPI1", "B2 NO via D2", "reader trigger (W4)", "415/416"]],
             [60, 150, 210, 70], title="Input map")
     s.note_box(1090, 290, 560, "Why it fails safe", [
         "B1 is NPN normally-open: cut cable / dead sensor reads 'no truck' → server shows RED.",
@@ -670,7 +690,8 @@ def sheet_w3():
         "2. Block B2 → 'DI2' toggles. Move GN→YE (NC) if it reads backwards.",
         "3. Press S1, S2; turn S3 → DI3/DI4/DI5 → 1, inputs JSON release/ack/maint true.",
         "4. If every DI reads inverted, set INPUT_ACTIVE_LOW false in config.h.",
-        "5. If a dry contact to DGND does NOT switch the opto, the board needs a",
+        "5. Block B2 with reader in trigger mode → U1 starts reading (W4).",
+        "6. If a dry contact to DGND does NOT switch the opto, the board needs a",
         "   sourced input: see option B below.",
     ], size=9.5, gap=15)
     s.note_box(1090, 590, 560, "Option B — if K1 DI turns out to need an external voltage", [
@@ -682,10 +703,11 @@ def sheet_w3():
         "    e.g. the PNP Heschen from PO 1811, or add a 12 V interposing relay.",
         "Mark the change on this sheet; firmware is unchanged.",
     ], size=9.5, gap=15)
-    s.note_box(1090, 770, 560, "Cable", [
-        "B1 ext: 22/4 PVC-jacket sensor cable, BN/BU/BK/WH(spare), ≤ 100 ft.",
-        "B2: 22/5 or the sensor's own lead. CS1: 18/6 SJOOW. Shield (if any): K1 end only.",
-        "Keep input cables away from AC (G1) and antenna coax inside the box.",
+    s.note_box(1090, 770, 560, "Why TB3 diodes (one beam contact, two inputs)", [
+        "B2 has ONE relay contact. Tied straight to DI2 and GPI1−, the open contact leaves",
+        "+12 → GPI1 LED → K1 DI2 LED → 0 V in series: both can false-trigger. D1/D2 block it.",
+        "Contact closed: both cathodes at 0 V → DI2 = 1 and GPI1 on (≈ 0.7 V drop, fine).",
+        "B2 22/5 lead · B1 22/4 ext · CS1 18/6 SJOOW. Keep away from AC + coax.",
     ], size=9.5, gap=15)
     return s
 
@@ -740,7 +762,7 @@ def sheet_w4():
     # U1 reader
     ux, uy = 1080, 120
     s.part(ux, uy, 300, 420, "U1", "WYUAN M-808EK UHF reader",
-           ["DC 9-24 V · 3 A · TCP/IP", "8 × SMA ANT · GPIO unused", "on M4 standoffs, ports down"])
+           ["DC 9-24 V · 3 A · TCP/IP", "8 × SMA ANT · GPI1 = beam trigger", "on M4 standoffs, ports down"])
     s.term(ux, uy + 150, "LAN", "L")
     s.term(ux, uy + 180, "DC IN", "L")
     s.wire([(px + 220, py + 150), (ux, uy + 150)], "ETH", "C2", sw=4)
@@ -753,13 +775,31 @@ def sheet_w4():
     s.text(ux + 12, uy + 254, "ALT DC (dashed): only if SPL1 browns out;", size=9, color="#b00000")
     s.text(ux + 12, uy + 268, "then C3 unplugged, 16 AWG RD/BK, inline 4 A fuse", size=9, color="#b00000")
 
+    # U1 GPIO 12-pin 3.81 mm terminal (from the reader sheet)
+    gx, gy = 1450, 270
+    s.part(gx, gy, 120, 262, "U1", "GPIO 3.81×12", fill="#f4f7f9")
+    s.line(ux + 300, gy + 60, gx, gy + 60, sw=1.2, dash="5 4")
+    s.text(ux + 306, gy + 54, "on U1", size=8.5, color="#55606a")
+    gp = ["1 VOUT", "2 485A", "3 485B", "4 GND", "5 GPO2", "6 GPO2", "7 GPO1", "8 GPO1",
+          "9 GPI2−", "10 GPI2+", "11 GPI1−", "12 GPI1+"]
+    for i, lab in enumerate(gp):
+        y = gy + 40 + i * 18
+        used = i >= 10
+        s.term(gx, y, lab + ("" if used else "  —"), "L", color="#ffe9a8" if used else "#e9eef2")
+    y11, y12 = gy + 40 + 10 * 18, gy + 40 + 11 * 18
+    s.wire([(gx, y11), (gx - 30, y11), (gx - 30, 575), (gx + 10, 575)], "GN", "415", tag_at=0)
+    s.offsheet(gx + 10, 575, "TB3 D2 (W3)", right=True)
+    s.wire([(gx, y12), (gx - 14, y12), (gx - 14, 605), (gx + 10, 605)], "RD", "416", tag_at=0)
+    s.offsheet(gx + 10, 605, "TB1-6 +12 F5 (W1)", right=True)
+    s.text(gx + 4, gy + 262 + 14, "— = leave empty", size=8.5, color="#55606a")
+
     # antenna ports
     ay = uy + 420
     for i in range(8):
         x = ux + 30 + i * 34
         s.circle(x, ay, 8, fill="#c8a24a", stroke="#5a4510")
         s.text(x, ay - 14, f"{i+1}", size=8.5, anchor="middle")
-    s.text(ux + 300 + 8, ay + 4, "ANT1-8 SMA", size=9)
+    s.text(ux + 150, ay - 30, "ANT1-8 SMA (bottom edge)", size=9, anchor="middle")
     bulk_y = 760
     for i in range(4):
         x = ux + 30 + i * 34
@@ -793,6 +833,16 @@ def sheet_w4():
         "U1  reader  IP ____________  port ______",
         "Broker 192.168.1.50:1883 (config.h MQTT_HOST)",
     ], size=9.5, gap=16)
+    s.note_box(1410, 640, 260, "GPI1 trigger", [
+        "Pin 12 GPI1+ = +12 V always.",
+        "Pin 11 GPI1− → 0 V when the",
+        "  beam breaks (B2 via D2).",
+        "Reader app: GPI1 trigger →",
+        "  start inventory, stop on",
+        "  release (+ hold 2-3 s).",
+        "Check GPI V range in the full",
+        "  manual; meter ≤ 20 mA.",
+    ], size=9.5, gap=15)
     s.note_box(1410, 120, 260, "PoE checks", [
         "SW1 budget ≥ SPL1 + K1",
         "  (25.5 W + ~5 W).",
@@ -830,7 +880,7 @@ def sheet_w5():
         ["204", "PSU2 −V", "SW1 V−", "BK", "18", "W1"],
         ["205", "TB1-2 (F2)", "K1 CH1 C", "RD", "18", "W2"],
         ["205", "K1 CH1 C", "CH2 C, CH3 C, CH4 C, CH5 C", "RD", "18", "W2"],
-        ["206", "TB1-8", "K1 DGND", "BK", "18", "W1/W3"],
+        ["206", "TB1-8", "K1 DGND", "BK", "18", "W3"],
         ["301", "K1 CH1 NO", "TB2-1 → HL1/HL2 red", "RD", "18", "W2"],
         ["302", "K1 CH2 NO", "TB2-2 → HL1/HL2 amber", "OR/YE", "18", "W2"],
         ["303", "K1 CH3 NO", "TB2-3 → HL1/HL2 green", "GN", "18", "W2"],
@@ -841,7 +891,10 @@ def sheet_w5():
     ]
     rows2 = [
         ["401", "B1 BK (JB1)", "G3 → K1 DI1", "BK", "22", "W3"],
-        ["402", "B2 GN (NO)", "G2 → K1 DI2", "GN", "22", "W3"],
+        ["402", "B2 GN (NO)", "G2 → TB3 node (D1/D2 K)", "GN", "22", "W3"],
+        ["402A", "TB3 D1 anode", "K1 DI2", "GN", "18", "W3"],
+        ["415", "TB3 D2 anode", "U1 GPIO 11 GPI1−", "GN", "22", "W3/W4"],
+        ["416", "TB1-6 (F5)", "U1 GPIO 12 GPI1+", "RD", "22", "W1/W4"],
         ["403", "B2 WH (COM)", "G2 → K1 DGND", "WH", "22", "W3"],
         ["404", "S1 14", "G7 → K1 DI3", "WH", "18", "W3"],
         ["405", "S2 14", "G7 → K1 DI4", "GN", "18", "W3"],
@@ -874,19 +927,20 @@ def sheet_w5():
     tb = [["TB0-1", "L in (G1)", "101 → F1"], ["TB0-2", "N in (G1)", "102 → PSU1"], ["TB0-3", "PE in (G1)", "103 ..."],
           ["TB1-1", "+12 feed", "201 PSU1 +V"], ["TB1-2", "+12 F2 2 A", "205 K1 COMs"],
           ["TB1-3", "+12 F3 ½ A", "410 B1"], ["TB1-4", "+12 F4 ½ A", "412 B2"], ["TB1-5", "+12", "spare / U1 alt"],
-          ["TB1-6", "+12", "spare"], ["TB1-7", "0 V feed", "202 PSU1 −V"], ["TB1-8", "0 V", "206 K1 DGND"],
+          ["TB1-6", "+12 F5 ½ A", "416 U1 GPI1+"], ["TB1-7", "0 V feed", "202 PSU1 −V"], ["TB1-8", "0 V", "206 K1 DGND"],
           ["TB1-9", "0 V", "411 B1"], ["TB1-10", "0 V", "413 B2"], ["TB1-11", "0 V", "306 TB2-5"],
           ["TB1-12", "0 V", "407 CS1 common"], ["TB1-13", "0 V", "308 S1 lamp −"], ["TB1-14", "0 V", "spare / U1 alt"],
           ["TB2-1", "red", "301 in / HL1 + HL2"], ["TB2-2", "amber", "302 in / HL1 + HL2"],
           ["TB2-3", "green", "303 in / HL1 + HL2"], ["TB2-4", "buzzer", "304 in / HL1 + HL2"],
-          ["TB2-5", "lamp com", "306 in / HL1 + HL2"]]
+          ["TB2-5", "lamp com", "306 in / HL1 + HL2"],
+          ["TB3-D1", "diode → DI2", "402 K / 402A A"], ["TB3-D2", "diode → GPI1−", "402 K / 415 A"]]
     s.table(x3, 110, ["Terminal", "Function", "Wires"], tb, [70, 90, 150], size=9.4, rowh=17.5,
             title="Terminal strips")
     gl = [["G1", "AC in 120 V", "18/3 or 14/3", "PG9"], ["G2", "B2 beam", "22/5", "PG7"],
           ["G3", "B1 truck (JB1)", "22/4", "PG7"], ["G4", "C4 uplink", "Cat6", "PG11 split"],
           ["G5", "HL1 tower", "18/5", "PG9"], ["G6", "HL2 tower  NEW", "18/5", "PG9"],
           ["G7", "CS1 station  NEW", "18/6", "PG9"], ["X1-X4", "antenna bulkheads", "coax", "BNC/SMA"]]
-    yb = s.table(x3, 540, ["Gland", "For", "Cable", "Size"], gl, [52, 120, 70, 70], size=9.4, rowh=17.5,
+    yb = s.table(x3, 590, ["Gland", "For", "Cable", "Size"], gl, [52, 120, 70, 70], size=9.4, rowh=17.5,
                  title="Glands (bottom face)")
     s.note_box(40, 600, 1000, "Rev 9 changes vs rev 8 (proposed — mark up the DXF when approved)", [
         "1. TB0 AC entry terminals (L / N / PE) and a backplate PE stud; PE to PSU1, PSU2, SW1, cover.",
@@ -897,10 +951,11 @@ def sheet_w5():
         "    S1 lamp on K1 CH5. New gland G7, cable W-CS 18/6. Wires 305, 308, 404-407.",
         "6. 48 V return gets its own number 204 (rev 8 used 203 for both legs). Sensor supplies 410-413.",
         "7. Firmware 1.1.0: buzzer/pilot topics, blink states, server-presence fail-safe, /info fw + MAC.",
+        "8. B2 beam also triggers U1 GPI1 (pin 12 +12 V F5, pin 11 sinks via TB3 diode D2). Wires 402A, 415, 416.",
     ], size=10, gap=16)
     s.note_box(40, 790, 1000, "Added parts for rev 9 (per box, not yet priced)", [
         "TB0: 2 × feed-thru + 1 × PE ground terminal, 2.5 mm² · TB1: 8 more terminals + 3 fused terminal holders",
-        "TB2: 5 × 4-level (quattro) terminals + end plate · jumper bars · PE stud kit",
+        "TB2: 5 × 4-level (quattro) terminals + end plate · jumper bars · PE stud kit · TB3: 2 × 1N4007 diode terminals",
         "CS1: 3-hole 22 mm IP65 station, green illuminated 12 V PB, yellow PB, 2-pos keyswitch, legend plates",
         "Cable: 18/6 SJOOW for CS1 · 18/5 for HL2 · 2 × PG9 glands (G6, G7) · fuses 2 A + 2 × 0.5 A (5×20)",
     ], size=10, gap=16)
